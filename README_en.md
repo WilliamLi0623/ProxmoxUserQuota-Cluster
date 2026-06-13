@@ -12,13 +12,17 @@ Design rationale for every privilege choice: [ProxmoxUserQuota-Docs / pool-rbac.
 |---|---|---|
 | `scripts/00-create-roles.sh` | any cluster node, root | create/refresh roles `UQ-VMUser`, `UQ-Storage`, `UQ-Net`, `UQ-ProxyAudit` |
 | `scripts/10-provision-user.sh` | any cluster node, root | create pool `uq-<user>` + ACLs for one user |
+| `scripts/30-provision-proxy.sh` | any cluster node, root | create proxy service account `uq-proxy@pve` + API token + ACL, and write the token file for the proxy |
 | `scripts/20-verify-p0.sh` | anywhere with `curl` + `python3` | assert the P0 exit criteria via the API |
 
 ## Usage
 
     ./scripts/00-create-roles.sh
     ./scripts/10-provision-user.sh alice@ldap -s tank -b vmbr0
+    ./scripts/30-provision-proxy.sh -f /etc/uq-proxy/pve-token   # proxy service account + token
     ./scripts/20-verify-p0.sh https://node1:8006 testuser1@pve 'pw1' testuser2@pve 'pw2' node1
+
+The token file `30-provision-proxy.sh` writes feeds the proxy's `-pve-token-file`; if the proxy is on another host, copy it there and restart `uq-proxy`. Use `--rotate` to regenerate the secret.
 
 Requirements: PVE 8.x / 9.x. `20-verify-p0.sh` accepts self-signed TLS (`curl -k`) — use against test clusters only.
 

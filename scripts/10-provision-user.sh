@@ -56,3 +56,5 @@ for b in ${bridges[@]+"${bridges[@]}"}; do
 done
 
 echo "provisioned: ${userid} (pool ${pool})"
+echo "NOTE: add ${userid}'s quota record (pool ${pool}) to the proxy's quotas.yaml;"
+echo "      a user with no record is default-denied once -enforce is on."

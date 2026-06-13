@@ -24,7 +24,13 @@ role_set UQ-Storage "Datastore.AllocateSpace Datastore.Audit"
 # Granted on /sdn/zones/localnetwork/<bridge> (or specific VNets).
 role_set UQ-Net "SDN.Use"
 
-# Read-only role for the proxy service account (used from P3 on).
-role_set UQ-ProxyAudit "VM.Audit Pool.Audit Datastore.Audit Sys.Audit SDN.Audit"
+# Service-account role for the proxy's read-only accounting (P3+). It looks
+# wider than "audit" because PVE 9.x gates several accounting *reads* behind
+# write-ish privileges (validated on 9.2.3):
+#   VM.Config.Disk          - size unused[n] disks via the storage content API
+#   Datastore.AllocateSpace - } read a backup's embedded config via
+#   VM.Backup               - } vzdump/extractconfig (restore admission)
+# The token only ever issues GETs, so it stays effectively read-only.
+role_set UQ-ProxyAudit "VM.Audit VM.Config.Disk VM.Backup Pool.Audit Datastore.Audit Datastore.AllocateSpace Sys.Audit SDN.Audit"
 
 echo "all roles ensured"
